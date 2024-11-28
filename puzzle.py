@@ -1,3 +1,17 @@
+GOAL = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
+
+
+def copy(root):
+    """ Copy function to create a similar matrix of the given node"""
+    temp = []
+    for i in root:
+        t = []
+        for j in i:
+            t.append(j)
+        temp.append(t)
+    return temp
+
+
 class Node:
     def __init__(self, data, level, f_value):
         """ Initialize the node with the data, level of the node and the calculated fvalue """
@@ -26,23 +40,13 @@ class Node:
         """ Move the blank space in the given direction and if the position value are out
             of limits the return None """
         if 0 <= x2 < len(self.data) and 0 <= y2 < len(self.data):
-            temp_puz = self.copy(puz)
+            temp_puz = copy(puz)
             temp = temp_puz[x2][y2]
             temp_puz[x2][y2] = temp_puz[x1][y1]
             temp_puz[x1][y1] = temp
             return temp_puz
         else:
             return None
-
-    def copy(self, root):
-        """ Copy function to create a similar matrix of the given node"""
-        temp = []
-        for i in root:
-            t = []
-            for j in i:
-                t.append(j)
-            temp.append(t)
-        return temp
 
     def find(self, puz, x):
         """ Finds the position of x in the matrix - used for finding the blank space """
@@ -61,19 +65,17 @@ class Puzzle:
         self.closed = []
         self.nodes_explored = 0
         self.nodes_in_solution = 0
-
-    def is_solvable(self):
-        """ Check if the puzzle is solvable """
+        self.solution_node = None
 
     def f(self, start, goal):
         """ Heuristic Function to calculate hueristic value f(x) = h(x) + g(x) """
         return self.h(start.data, goal) + start.level
 
-    def find_Solution(self, start, goal):
+    def find_solution(self, start, goal):
+        """Attempts to find a solution to the puzzle"""
         self.nodes_explored = 0
         self.nodes_in_solution = 0
         """ Accept Start and Goal Puzzle state"""
-        prettyprint_matrix(start)
         start = Node(start, 0, 0)
         start.f_value = self.f(start, goal)
         """ Put the start node in the open list"""
@@ -85,31 +87,47 @@ class Puzzle:
             self.nodes_explored=self.nodes_explored+1
             if self.nodes_explored%2!=0: print(". ", end="")
             else: print("\b\b", end="")
-            cur = self.open[0]
+            current_node = self.open[0]
             """ If the difference between current and goal node is 0 we have reached the goal node"""
-            if self.h(cur.data, goal) == 0:
+            if self.h(current_node.data, goal) == 0:
                 print("Solution found!")
-                self.process_solution(cur)
+                self.solution_node = current_node
+                self.process_solution(current_node)
                 return
-            for i in cur.generate_child():
+            for i in current_node.generate_child():
                 i.f_value = self.f(i, goal)
                 self.open.append(i)
-            self.closed.append(cur)
+            self.closed.append(current_node)
             del self.open[0]
             """ sort the open list based on f value """
             self.open.sort(key=lambda x: x.f_value, reverse=False)
         print("No solution found.")
 
-    def process_solution(self, node):
+    def process_solution(self, node, print_solution=False):
         """Prints the solution path to the console and counts the steps needed to solve the puzzle"""
         step = self.nodes_in_solution
         if node.parent is not None:
             self.nodes_in_solution = self.nodes_in_solution + 1
             self.process_solution(node.parent)
         else:
-            print("Steps to Solution:")
-        print("---------",step, "moves from goal")
-        prettyprint_matrix(node.data)
+            if print_solution: print("Steps to Solution:")
+        if print_solution:
+            print("---------",step, "moves from goal")
+            prettyprint_matrix(node.data)
+
+def is_solvable(matrix):
+    """ Checks if the puzzle is solvable """
+    flat_matrix = flatten_matrix(matrix)
+    inversions = 0
+    empty_value = -1
+    for i in range(0, 9):
+        for j in range(i + 1, 9):
+            if flat_matrix[j] != empty_value and flat_matrix[i] != empty_value and flat_matrix[i] > flat_matrix[j]:
+                inversions += 1
+    if inversions%2==0:
+        print(matrix ,"is solvable!")
+        return True
+    else: return False
 
 def prettyprint_matrix(matrix):
     """Prints the 3x3 matrix to the console"""
@@ -118,6 +136,13 @@ def prettyprint_matrix(matrix):
             print(j, end=" ")
         print("")
 
+def flatten_matrix(matrix):
+    """Flattens the given 3x3 matrix into a list"""
+    return [item for sub_list in matrix for item in sub_list]
+
+def list_to_matrix(list):
+    """Transforms a list of 9 items into a 3x3 matrix (for longer lists the elements after will be truncated"""
+    return [list[:3], list[3:6], list[6:]]
 
 def h_manhattan(start, goal):
     """Calculates estimated cost of path from node to the goal (manhattan distance)"""
@@ -146,16 +171,19 @@ def h_hamming(start, goal):
                 hamming += 1
     return hamming
 
-if __name__ == '__main__':
+def main():
+    """ main function with examples """
     puzzlestart = [[1, 8, 2],
-             [3, 4, 5],
-             [6, 7, 0]]
-    puzzlegoal = [[0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8]]
-
-    puzzle = Puzzle(h_hamming)
-    puzzle.find_Solution(puzzlestart, puzzlegoal)
-
+                   [3, 4, 5],
+                   [6, 7, 0]]
+    #print(is_solvable(puzzlestart))
+    #print(flatten_matrix(puzzlestart))
+    #print(list_to_matrix(flatten_matrix(puzzlestart)))
+    puzzle = Puzzle(h_manhattan)
+    puzzle.find_solution(puzzlestart, GOAL)
     print("Nodes explored: ", puzzle.nodes_explored)
     print("Nodes in_solution: ", puzzle.nodes_in_solution)
+
+
+if __name__ == '__main__':
+    main()
