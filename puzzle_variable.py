@@ -69,7 +69,9 @@ class Puzzle:
         """ Heuristic Function to calculate hueristic value f(x) = h(x) + g(x) """
         return self.h(start.data, goal) + start.level
 
-    def process(self,start, goal):
+    def find_Solution(self, start, goal):
+        self.nodes_explored = 0
+        self.nodes_in_solution = 0
         """ Accept Start and Goal Puzzle state"""
         prettyprint_matrix(start)
         start = Node(start, 0, 0)
@@ -77,17 +79,18 @@ class Puzzle:
         """ Put the start node in the open list"""
         self.open.append(start)
 
-        print("\nLooking for Solution..\n")
+        print("\nLooking for solution... ",end="")
 
-        while True:
+        while len(self.open) > 0:
             self.nodes_explored=self.nodes_explored+1
-            else: print(".", end="")
+            if self.nodes_explored%2!=0: print(". ", end="")
+            else: print("\b\b", end="")
             cur = self.open[0]
             """ If the difference between current and goal node is 0 we have reached the goal node"""
             if self.h(cur.data, goal) == 0:
-                print("Solution found:")
-                self.print_solution(cur)
-                break
+                print("Solution found!")
+                self.process_solution(cur)
+                return
             for i in cur.generate_child():
                 i.f_value = self.f(i, goal)
                 self.open.append(i)
@@ -95,17 +98,21 @@ class Puzzle:
             del self.open[0]
             """ sort the open list based on f value """
             self.open.sort(key=lambda x: x.f_value, reverse=False)
-        print("No solution found.\n")
+        print("No solution found.")
 
-    def print_solution(self,node):
+    def process_solution(self, node):
+        """Prints the solution path to the console and counts the steps needed to solve the puzzle"""
+        step = self.nodes_in_solution
         if node.parent is not None:
-            self.print_solution(node.parent)
-        print("----------")
+            self.nodes_in_solution = self.nodes_in_solution + 1
+            self.process_solution(node.parent)
+        else:
+            print("Steps to Solution:")
+        print("---------",step, "moves from goal")
         prettyprint_matrix(node.data)
-        self.nodes_explored=self.nodes_explored+1
-
 
 def prettyprint_matrix(matrix):
+    """Prints the 3x3 matrix to the console"""
     for i in matrix:
         for j in i:
             print(j, end=" ")
@@ -147,5 +154,8 @@ if __name__ == '__main__':
             [3, 4, 5],
             [6, 7, 8]]
 
-    puzzle = Puzzle(h_manhattan)
-    puzzle.process(puzzlestart, puzzlegoal)
+    puzzle = Puzzle(h_hamming)
+    puzzle.find_Solution(puzzlestart, puzzlegoal)
+
+    print("Nodes explored: ", puzzle.nodes_explored)
+    print("Nodes in_solution: ", puzzle.nodes_in_solution)
