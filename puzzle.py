@@ -55,6 +55,14 @@ class Node:
                 if puz[i][j] == x:
                     return i, j
 
+    def equals(self, other_node):
+        """ Compares two nodes based on their matrix """
+        for x in range(0, len(self.data)):
+            for y in range(0, len(self.data)):
+                if self.data[x][y] != other_node.data[x][y]:
+                    return False
+        return True
+
 class Puzzle:
 
     def __init__(self, heuristic):
@@ -81,22 +89,25 @@ class Puzzle:
         """ Put the start node in the open list"""
         self.open.append(start)
 
-        print("\nLooking for solution... ",end="")
+        print("\nLooking for solution... ")
 
         while len(self.open) > 0:
             self.nodes_explored=self.nodes_explored+1
-            if self.nodes_explored%2!=0: print(". ", end="")
-            else: print("\b\b", end="")
             current_node = self.open[0]
+            print("\r Node", self.nodes_explored, "Distance:", self.h(current_node.data, GOAL), "F-Value:",current_node.f_value, end="")
             """ If the difference between current and goal node is 0 we have reached the goal node"""
             if self.h(current_node.data, goal) == 0:
                 print("Solution found!")
                 self.solution_node = current_node
                 self.process_solution(current_node)
                 return
-            for i in current_node.generate_child():
-                i.f_value = self.f(i, goal)
-                self.open.append(i)
+            for node_child in current_node.generate_child():
+                unique_child = True
+                for closed_node in self.closed:
+                    if closed_node.equals(node_child): unique_child = False
+                if unique_child:
+                    node_child.f_value = self.f(node_child, goal)         # calculate new f value for child
+                    self.open.append(node_child)
             self.closed.append(current_node)
             del self.open[0]
             """ sort the open list based on f value """
@@ -170,12 +181,16 @@ def h_hamming(start, goal):
 
 def main():
     """ main function with examples """
-    puzzlestart = [[1, 8, 2],
-                   [3, 4, 5],
-                   [6, 7, 0]]
-    #print(is_solvable(puzzlestart))
-    #print(flatten_matrix(puzzlestart))
-    #print(list_to_matrix(flatten_matrix(puzzlestart)))
+    puzzlestart = [[5, 2, 0], [8, 4, 3], [1, 7, 6]]
+    #[[5, 2, 0], [8, 4, 3], [1, 7, 6]]
+    #[[1, 8, 2],[3, 4, 5],[6, 7, 0]]
+
+    print(is_solvable(puzzlestart))
+    print(flatten_matrix(puzzlestart))
+    print(list_to_matrix(flatten_matrix(puzzlestart)))
+    print("Manhattan", h_manhattan(puzzlestart, GOAL))
+    print("Hamming", h_hamming(puzzlestart, GOAL))
+
     puzzle = Puzzle(h_manhattan)
     puzzle.find_solution(puzzlestart, GOAL)
     print("Nodes explored: ", puzzle.nodes_explored)
