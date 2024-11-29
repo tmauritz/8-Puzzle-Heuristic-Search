@@ -66,11 +66,10 @@ def run_test_case(test_case, heuristic):
 
 def main():
     """Main function"""
-    test_case_list = generate_test_cases(10)
-    #run_test_case(test_case_list[1], puzzle.h_manhattan)
-    test_case = [1, 8, 2, 3, 4, 5, 6, 7, 0]
+    test_case_list = load_test_cases_from_file()
 
-    run_test_case(test_case, puzzle.h_manhattan)
+    run_all_test_cases(test_case_list, puzzle.h_manhattan)
+    run_all_test_cases(test_case_list, puzzle.h_hamming)
 
 if __name__ == '__main__':
     main()

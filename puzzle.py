@@ -124,10 +124,7 @@ def is_solvable(matrix):
         for j in range(i + 1, 9):
             if flat_matrix[j] != empty_value and flat_matrix[i] != empty_value and flat_matrix[i] > flat_matrix[j]:
                 inversions += 1
-    if inversions%2==0:
-        print(matrix ,"is solvable!")
-        return True
-    else: return False
+    return inversions%2==0
 
 def prettyprint_matrix(matrix):
     """Prints the 3x3 matrix to the console"""
