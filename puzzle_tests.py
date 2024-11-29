@@ -47,22 +47,22 @@ def generate_test_case():
 def run_all_test_cases(test_list, heuristic):
     """Runs all puzzle test cases"""
     print("------------ Running puzzle test cases ----------------------------------")
-    for test_case in test_list:
+    for i in range(len(test_list)):
+        test_case = test_list[i]
+        print("Running test case #"+str(i)+": ", test_case, "with heuristic: ", heuristic.__name__)
         run_test_case(test_case, heuristic)
+        print("-------------------------------------------------------------------------")
 
 
 def run_test_case(test_case, heuristic):
     """Runs the puzzle test case"""
     test_puzzle = puzzle.Puzzle(heuristic)
     test_matrix = puzzle.list_to_matrix(test_case)
-    print("Running test case: ", test_matrix, "with heuristic: ", heuristic.__name__)
     start_time = time.time()
     test_puzzle.find_solution(test_matrix, puzzle.GOAL)
     end_time = time.time()
-    log_entry = [str(test_matrix), start_time, end_time, end_time - start_time, test_puzzle.nodes_explored,
-                 test_puzzle.nodes_in_solution, heuristic.__name__]
+    log_entry = [str(test_case), end_time - start_time, test_puzzle.nodes_explored, test_puzzle.nodes_in_solution, heuristic.__name__]
     write_to_log(log_entry)
-    print("-------------------------------------------------------------------------")
 
 
 def main():
