@@ -81,7 +81,7 @@ class Puzzle:
         return self.h(start.data, goal) + start.level
 
     def find_solution(self, start, goal):
-        """Attempts to find a solution to the puzzle"""
+        """Attempts to find a solution to the puzzle. puzzle needs to be solvable (check with is_solveable)"""
         self.nodes_explored = 0
         self.nodes_in_solution = 0
         """ Accept Start and Goal Puzzle state"""
@@ -133,7 +133,7 @@ def is_solvable(matrix):
     """ Checks if the puzzle is solvable """
     flat_matrix = flatten_matrix(matrix)
     inversions = 0
-    empty_value = -1
+    empty_value = 0
     for i in range(0, 9):
         for j in range(i + 1, 9):
             if flat_matrix[j] != empty_value and flat_matrix[i] != empty_value and flat_matrix[i] > flat_matrix[j]:
