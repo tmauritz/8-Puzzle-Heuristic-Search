@@ -7,7 +7,7 @@ import puzzle
 
 def write_to_log(line):
     """Write line (array) to csv log file"""
-    with open('log.csv', 'w', newline='') as csvfile:
+    with open('log.csv', 'a', newline='') as csvfile:
         log = csv.writer(csvfile, delimiter=';',
                          quotechar='|', quoting=csv.QUOTE_MINIMAL)
         log.writerow(line)
