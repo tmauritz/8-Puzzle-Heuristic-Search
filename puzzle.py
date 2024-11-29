@@ -63,6 +63,7 @@ class Node:
                     return False
         return True
 
+
 class Puzzle:
 
     def __init__(self, heuristic):
@@ -92,9 +93,10 @@ class Puzzle:
         print("\nLooking for solution... ")
 
         while len(self.open) > 0:
-            self.nodes_explored=self.nodes_explored+1
+            self.nodes_explored = self.nodes_explored + 1
             current_node = self.open[0]
-            print("\r Node", self.nodes_explored, "Distance:", self.h(current_node.data, GOAL), "F-Value:",current_node.f_value, end="")
+            print("\r Node", self.nodes_explored, "Distance:", self.h(current_node.data, GOAL), "F-Value:",
+                  current_node.f_value, end=" ")
             """ If the difference between current and goal node is 0 we have reached the goal node"""
             if self.h(current_node.data, goal) == 0:
                 print("Solution found!")
@@ -106,7 +108,7 @@ class Puzzle:
                 for closed_node in self.closed:
                     if closed_node.equals(node_child): unique_child = False
                 if unique_child:
-                    node_child.f_value = self.f(node_child, goal)         # calculate new f value for child
+                    node_child.f_value = self.f(node_child, goal)  # calculate new f value for child
                     self.open.append(node_child)
             self.closed.append(current_node)
             del self.open[0]
@@ -123,8 +125,9 @@ class Puzzle:
         else:
             if print_solution: print("Steps to Solution:")
         if print_solution:
-            print("---------",step, "moves from goal")
+            print("---------", step, "moves from goal")
             prettyprint_matrix(node.data)
+
 
 def is_solvable(matrix):
     """ Checks if the puzzle is solvable """
@@ -135,7 +138,8 @@ def is_solvable(matrix):
         for j in range(i + 1, 9):
             if flat_matrix[j] != empty_value and flat_matrix[i] != empty_value and flat_matrix[i] > flat_matrix[j]:
                 inversions += 1
-    return inversions%2==0
+    return inversions % 2 == 0
+
 
 def prettyprint_matrix(matrix):
     """Prints the 3x3 matrix to the console"""
@@ -144,13 +148,16 @@ def prettyprint_matrix(matrix):
             print(j, end=" ")
         print("")
 
+
 def flatten_matrix(matrix):
     """Flattens the given 3x3 matrix into a list"""
     return [item for sub_list in matrix for item in sub_list]
 
+
 def list_to_matrix(list):
     """Transforms a list of 9 items into a 3x3 matrix (for longer lists the elements after will be truncated"""
     return [list[:3], list[3:6], list[6:]]
+
 
 def h_manhattan(start, goal):
     """Calculates estimated cost of path from node to the goal (manhattan distance)"""
@@ -170,6 +177,7 @@ def h_manhattan(start, goal):
                 manhattan += abs(row - goal_row) + abs(col - goal_col)
     return manhattan
 
+
 def h_hamming(start, goal):
     """Calculates estimated cost of path from node to the goal (hamming distance)"""
     hamming = 0
@@ -179,11 +187,12 @@ def h_hamming(start, goal):
                 hamming += 1
     return hamming
 
+
 def main():
     """ main function with examples """
     puzzlestart = [[5, 2, 0], [8, 4, 3], [1, 7, 6]]
-    #[[5, 2, 0], [8, 4, 3], [1, 7, 6]]
-    #[[1, 8, 2],[3, 4, 5],[6, 7, 0]]
+    # [[5, 2, 0], [8, 4, 3], [1, 7, 6]]
+    # [[1, 8, 2],[3, 4, 5],[6, 7, 0]]
 
     print(is_solvable(puzzlestart))
     print(flatten_matrix(puzzlestart))
